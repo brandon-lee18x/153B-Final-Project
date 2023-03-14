@@ -1,4 +1,3 @@
-
 #include "accelerometer.h"
 
 extern void Error_Handler(void);
@@ -20,7 +19,7 @@ void I2C_GPIO_Init(void) {
 	//USE PB6 & PB7 FOR I2C1_SCL AND I2C1_SDA RESPECTIVELY
 	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN; //enable port B clk
 	
-	GPIOB->OTYPER |= GPIO_OTYPER_OT6 | GPIO_OTYPER_OT7; //open drain
+	GPIOB->OTYPER |= GPIO_OTYPER_OT6 | GPIO_OTYPER_OT7; //open drain. Finalize if push pull or open drain. Slides have open drain
 	GPIOB->MODER &= ~(GPIO_MODER_MODE6_0 | GPIO_MODER_MODE7_0); //clear lsb => moder bits [1:0] = 10 (alt function)
 	GPIOB->AFR[0] &= ~(GPIO_AFRL_AFSEL6|GPIO_AFRL_AFSEL7);
 	GPIOB->AFR[0] |= (GPIO_AFRL_AFSEL6_2|GPIO_AFRL_AFSEL7_2); // set alt function to AF4 (0100)
@@ -41,18 +40,19 @@ void I2C_GPIO_Init(void) {
 void I2C_Initialization(void){
 	uint32_t OwnAddr = 0x52;
 	
-	// [TODO]
 	RCC->APB1ENR1 |= RCC_APB1ENR1_I2C1EN; //enable clock for I2C1
 	RCC->CCIPR &= ~(RCC_CCIPR_I2C1SEL); //clear bits associated with setting clock src for I2C1
 	RCC->CCIPR |= RCC_CCIPR_I2C1SEL_0; //set clock src to system clock
 	RCC->APB1RSTR1 |= RCC_APB1RSTR1_I2C1RST; //reset I2C1
 	RCC->APB1RSTR1 &= ~(RCC_APB1RSTR1_I2C1RST); //clear bits associated w/ resetting I2C1
 	
-	I2C1->CR1 &= ~(I2C_CR1_PE); //disable I2C?
-	I2C1->CR1 &= ~(I2C_CR1_ANFOFF | I2C_CR1_DNF | I2C_CR1_NOSTRETCH); // disable: digital noise filter, clock stretching
+	I2C1->CR1 &= ~(I2C_CR1_PE); //disable I2C
+	I2C1->CR1 &= ~(I2C_CR1_ANFOFF | I2C_CR1_DNF | I2C_CR1_NOSTRETCH); // enable analog noise filter, disable digital noise filter, enable clock stretching
 	I2C1->CR1 |= I2C_CR1_ERRIE; // enable error interrupts
 	I2C1->CR2 &= ~I2C_CR2_ADD10; //set master to 7-bit addressing mode
-	I2C1->CR2 |= I2C_CR2_AUTOEND | I2C_CR2_NACK;
+	I2C1->CR2 |= I2C_CR2_AUTOEND | I2C_CR2_NACK; //enable automatic end mode and NACK generation
+	
+	//CHANGE TIMINGR VALUES TO FIT ACCELEROMETER
 	I2C1->TIMINGR |= (uint32_t)5 << I2C_TIMINGR_PRESC_POS;
 	I2C1->TIMINGR |= (uint32_t)2 << I2C_TIMINGR_SCLDEL_POS;
 	I2C1->TIMINGR |= (uint32_t)2 << I2C_TIMINGR_SDADEL_POS;
@@ -64,7 +64,7 @@ void I2C_Initialization(void){
 	I2C1->OAR1 &= ~(I2C_OAR1_OA1MODE); // set own address 1 as 7-bit address
 	I2C1->OAR1 |= OwnAddr; //set own address in OAR1
 	I2C1->OAR1 |= I2C_OAR1_OA1EN; // re-enable Own address 1
-	I2C1->CR1 |= I2C_CR1_PE; //re-enable I2C?
+	I2C1->CR1 |= I2C_CR1_PE; //re-enable I2C
 }
 
 //===============================================================================
