@@ -70,10 +70,10 @@ void accelerometer_init(void) {
 	//get accelerometer out of sleep mode
 	Data_Send = 0x6B;
 	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
-	Data_Send = 0b00000101; //turn on accelerometer; change clk source to external source w/ 19.2 MHz reference; FINALIZE DECISION OF CLK SRC
+	Data_Send = 0b00000000; //turn on accelerometer; change clk source to internal clk w/ freq of 8 MHZ; FINALIZE DECISION OF CLK SRC
 	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
 
-	//set SMPLRT_DIV, which effectively changes sample rate (sample rate = f_clk / (1 + SMPLRT_DIV))
+	//set SMPLRT_DIV, which effectively changes sample rate (sample rate = f_clk / (1 + SMPLRT_DIV)). Rn sample rate is 1 Khz
 	Data_Send = 0x19;
 	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
 	Data_Send = 0x07; //SMPLRT_DIV value; FINALIZE DECISION OF SMPLRT_DIV VALUE
