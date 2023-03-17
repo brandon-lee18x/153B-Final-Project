@@ -15,6 +15,7 @@ int8_t I2C_SendData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, u
 int8_t I2C_ReceiveData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, uint8_t Size);
 void I2C_GPIO_Init(void);
 void I2C_Initialization(void);
+void accelerometer_init(void);
 void CODEC_Initialization(void);
 
 #endif
