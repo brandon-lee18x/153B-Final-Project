@@ -66,7 +66,7 @@ void SPI2_Init(void){
 	SPI2->CR1 &= ~SPI_CR1_CPOL; // set to low polarity
 	SPI2->CR1 &= ~SPI_CR1_CPHA; // set sampling edge to first transition?
 	SPI2->CR1 &= ~SPI_CR1_BR; // clear baud rate control bits
-	SPI2->CR1 |= (SPI_CR1_BR_0|SPI_CR1_BR_1); // set baud rate prescaler to 16
+	SPI2->CR1 |= (SPI_CR1_BR_0); // set baud rate prescaler to 16
 	SPI2->CR1 &= ~SPI_CR1_CPHA; //set sampling edge to first transition?
 	SPI2->CR1 &= ~SPI_CR1_CRCEN; // disables hardware CRC calculation
 	SPI2->CR1 &= ~SPI_CR1_MSTR; // set SPI2 to slave mode

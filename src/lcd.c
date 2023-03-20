@@ -11,36 +11,6 @@ struct _current_font cfont;
 static int prev_tunerDisplay_width = DISP_X_SIZE;
 
 
-// Read data from LCD controller
-// FIXME: not work
-uint32_t LCD_Read(char VL)
-{
-    uint32_t retval = 0;
-    int index = 0;
-
-    Xil_Out32(SPI_DC, 0x0);
-    Xil_Out32(SPI_DTR, VL);
-
-    //while (0 == (Xil_In32(SPI_SR) & XSP_SR_TX_EMPTY_MASK));
-    while (0 == (Xil_In32(SPI_IISR) & XSP_INTR_TX_EMPTY_MASK));
-    Xil_Out32(SPI_IISR, Xil_In32(SPI_IISR) | XSP_INTR_TX_EMPTY_MASK);
-    Xil_Out32(SPI_DC, 0x01);
-
-    while (1 == (Xil_In32(SPI_SR) & XSP_SR_RX_EMPTY_MASK));
-    xil_printf("SR = %x\n", Xil_In32(SPI_SR));
-
-
-    while (0 == (Xil_In32(SPI_SR) & XSP_SR_RX_EMPTY_MASK)) {
-       retval = (retval << 8) | Xil_In32(SPI_DRR);
-       xil_printf("receive %dth byte\n", index++);
-    }
-
-    xil_printf("SR = %x\n", Xil_In32(SPI_SR));
-    xil_printf("SR = %x\n", Xil_In32(SPI_SR));
-    return retval;
-}
-
-
 // Write command to LCD controller
 void LCD_Write_COM(char VL)
 {
