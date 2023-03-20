@@ -39,43 +39,6 @@ void SPI1_Init(void){
 	SPI1->CR2 |= SPI_CR2_FRXTH; //??? set FIFO transmission to 1/4
 	SPI1->CR1 |= SPI_CR1_SPE; // re-enable SPI
 }
-
-void SPI2_GPIO_Init(void) {
-	// TODO: initialize SPI2 GPIO pins
-	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN; //enable port b clock
-	GPIOB->MODER &= ~(GPIO_MODER_MODE13_0|GPIO_MODER_MODE14_0|GPIO_MODER_MODE15_0); //ALT FUNCTION FOR PINS 13, 14, 15
-	GPIOB->AFR[1] &= ~(GPIO_AFRH_AFSEL13|GPIO_AFRH_AFSEL14|GPIO_AFRH_AFSEL15); //clear AF bits
-	GPIOB->AFR[1] |= (GPIO_AFRH_AFSEL13_2|GPIO_AFRH_AFSEL13_0|GPIO_AFRH_AFSEL14_2|GPIO_AFRH_AFSEL14_0|GPIO_AFRH_AFSEL15_2|GPIO_AFRH_AFSEL15_0); //set PB13-15 to AF5 (0101)
-	GPIOB->OTYPER &= ~(GPIO_OTYPER_OT13|GPIO_OTYPER_OT14|GPIO_OTYPER_OT15); //clear OTYPER PB13-15 bits
-	GPIOB->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR13|GPIO_OSPEEDER_OSPEEDR14|GPIO_OSPEEDER_OSPEEDR15); //set PB13-15 to very high output speed
-	GPIOB->PUPDR &= ~(GPIO_PUPDR_PUPD13|GPIO_PUPDR_PUPD14|GPIO_PUPDR_PUPD15); //set PB13-5 to no pull
-}
-
-void SPI2_Init(void){
-	// TODO: initialize SPI2 peripheral as slave
-	RCC->APB1ENR1 |= RCC_APB1ENR1_SPI2EN; //enable SPI (I think this enables SPI clock but not sure)
-	RCC->APB1RSTR1 |= RCC_APB1RSTR1_SPI2RST;//set RCC SPI reset bit
-	RCC->APB1RSTR1 &= ~RCC_APB1RSTR1_SPI2RST; //clear RCC SPI reset bit (resets SPI)
-	SPI2->CR1 &= ~SPI_CR1_SPE; // disable SPI
-	SPI2->CR1 &= ~SPI_CR1_RXONLY; // full-duplex
-	SPI2->CR1 &= ~SPI_CR1_BIDIMODE; //two-line unidirectional data mode
-	SPI2->CR1 &= ~SPI_CR1_BIDIOE; //disables output in bidirectional mode
-	SPI2->CR1	&= ~SPI_CR1_LSBFIRST; // msb first
-	SPI2->CR1 &= ~SPI_CR1_CRCL; // 8-bit data frame format
-	SPI2->CR2 &= ~SPI_CR2_FRF; //use motorolla SPI mode
-	SPI2->CR1 &= ~SPI_CR1_CPOL; // set to low polarity
-	SPI2->CR1 &= ~SPI_CR1_CPHA; // set sampling edge to first transition?
-	SPI2->CR1 &= ~SPI_CR1_BR; // clear baud rate control bits
-	SPI2->CR1 |= (SPI_CR1_BR_0); // set baud rate prescaler to 16
-	SPI2->CR1 &= ~SPI_CR1_CPHA; //set sampling edge to first transition?
-	SPI2->CR1 &= ~SPI_CR1_CRCEN; // disables hardware CRC calculation
-	SPI2->CR1 &= ~SPI_CR1_MSTR; // set SPI2 to slave mode
-	SPI2->CR1 |= SPI_CR1_SSM; //enable software SSM
-	SPI2->CR2 |= SPI_CR2_NSSP; //enable NSS pluse generation
-	SPI2->CR1 &= ~SPI_CR1_SSI; //enable internal slave select (slave = 0)
-	SPI2->CR2 |= SPI_CR2_FRXTH; //??? set FIFO transmission to 1/4
-	SPI2->CR1 |= SPI_CR1_SPE; // re-enable SPI
-}
  
 void SPI_Send_Byte(SPI_TypeDef* SPIx, uint8_t write_data) {
 	// TODO: send data from SPI1

@@ -1,5 +1,3 @@
-
-
 #include "lcd.h"
 
 // Global variables
@@ -8,40 +6,49 @@ int fcl;
 int bch;
 int bcl;
 struct _current_font cfont;
-static int prev_tunerDisplay_width = DISP_X_SIZE;
 
+void LCD_GPIO_init() {
+	//initialize DC (PA10), RESET (PA2), CS(PA3)
+	
+	//Enable PortA GPIO clock
+	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
+	
+	//Initialize DC (PA10) pin
+	GPIOA->MODER &= ~(GPIO_MODER_MODE10_1|GPIO_MODER_MODE2_1|GPIO_MODER_MODE3); //set DC to output, RESET to output, CS to output
+	GPIOA->OTYPER &= ~(GPIO_OTYPER_OT10|GPIO_OTYPER_OT2|GPIO_OTYPER_OT3);// set DC, RESET, CS to push-pull
+	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPD10|GPIO_PUPDR_PUPD2|GPIO_PUPDR_PUPD3); // set DC and RESET to no pull-up, pull-down
+	GPIOA->PUPDR |= GPIO_PUPDR_PUPD3_0; // set CS to pull-up
+	GPIOA->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR10|GPIO_OSPEEDER_OSPEEDR2|GPIO_OSPEEDER_OSPEEDR3);
+	GPIOA->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR10|GPIO_OSPEEDER_OSPEEDR2|GPIO_OSPEEDER_OSPEEDR3); // set DC, RESET, CS to high output speed
+}
 
 // Write command to LCD controller
-void LCD_Write_COM(char VL)
+void LCD_Write_COM(uint8_t byte)
 {
-    Xil_Out32(SPI_DC, 0x0);
-    Xil_Out32(SPI_DTR, VL);
-
-    while (0 == (Xil_In32(SPI_IISR) & XSP_INTR_TX_EMPTY_MASK));
-    Xil_Out32(SPI_IISR, Xil_In32(SPI_IISR) | XSP_INTR_TX_EMPTY_MASK);
+		// set DC to 0
+    GPIOA->ODR &= ~GPIO_ODR_OD10;
+    SPI_Send_Byte(SPI1, byte);
 }
 
 
 // Write 16-bit data to LCD controller
-void LCD_Write_DATA16(char VH, char VL)
+void LCD_Write_DATA16(uint8_t byteH, uint8_t byteL)
 {
-    Xil_Out32(SPI_DC, 0x01);
-    Xil_Out32(SPI_DTR, VH);
-    Xil_Out32(SPI_DTR, VL);
-
-    while (0 == (Xil_In32(SPI_IISR) & XSP_INTR_TX_EMPTY_MASK));
-    Xil_Out32(SPI_IISR, Xil_In32(SPI_IISR) | XSP_INTR_TX_EMPTY_MASK);
+		// set DC to 1
+    GPIOA->ODR |= GPIO_ODR_OD10;
+		SPI_Send_Byte(SPI1, byteH);
+		SPI_Send_Byte(SPI1, byteL);
+    //Xil_Out32(SPI_DTR, byteH);
+    //Xil_Out32(SPI_DTR, byteL);
 }
 
 
 // Write 8-bit data to LCD controller
-void LCD_Write_DATA(char VL)
+void LCD_Write_DATA(uint8_t byteL)
 {
-    Xil_Out32(SPI_DC, 0x01);
-    Xil_Out32(SPI_DTR, VL);
-
-    while (0 == (Xil_In32(SPI_IISR) & XSP_INTR_TX_EMPTY_MASK));
-    Xil_Out32(SPI_IISR, Xil_In32(SPI_IISR) | XSP_INTR_TX_EMPTY_MASK);
+		// set DC to 1
+    GPIOA->ODR |= GPIO_ODR_OD10;
+    SPI_Send_Byte(SPI1, byteL);
 }
 
 

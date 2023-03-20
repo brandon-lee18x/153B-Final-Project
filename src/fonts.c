@@ -20,7 +20,7 @@
 
 
 
-u8 SmallFont[1144] = {
+uint8_t SmallFont[1144] = {
 
 0x08,0x0C,0x20,0x5F,
 
@@ -228,7 +228,7 @@ u8 SmallFont[1144] = {
 
 
 
-u8 BigFont[3044] = {
+uint8_t BigFont[3044] = {
 
 0x10,0x10,0x20,0x5F,
 
@@ -446,7 +446,7 @@ u8 BigFont[3044] = {
 
 
 
-u8 SevenSegNumFont[2004] = {
+uint8_t SevenSegNumFont[2004] = {
 
 0x20,0x32,0x30,0x0A,
 

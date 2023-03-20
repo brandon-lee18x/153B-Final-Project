@@ -28,6 +28,7 @@
 #ifndef qfn_h
 #define qfn_h
 
+#include "qpn_port.h"
 /**
 * \file
 * \ingroup qepn qfn qkn

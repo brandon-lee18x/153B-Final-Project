@@ -2,6 +2,7 @@
 #define LCD_H_
 
 #include "stm32l476xx.h"
+#include "SPI.h"
 
 
 #define cbi(reg, bitmask)       Xil_Out32(reg, Xil_In32(reg) & ~(u32)bitmask)
@@ -10,7 +11,6 @@
 
 #define DISP_X_SIZE     239
 #define DISP_Y_SIZE     329
-
 
 struct _current_font
 {
@@ -39,10 +39,10 @@ extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
 extern uint8_t SevenSegNumFont[];
 
-uint32_t LCD_Read(char VL);
-void LCD_Write_COM(char VL);
-void LCD_Write_DATA(char VL);
-void LCD_Write_DATA16(char VH, char VL);
+uint32_t LCD_Read(uint8_t VL);
+void LCD_Write_COM(uint8_t VL);
+void LCD_Write_DATA(uint8_t VL);
+void LCD_Write_DATA16(uint8_t VH, uint8_t VL);
 //void LCD_Write_DATA_(char VH, char VL);
 
 void initLCD(void);
@@ -63,5 +63,6 @@ void hideElement(int s);
 void paintMenu(short selected);
 void paintPageHeader(char* hd);
 void printBar(int x, int y, int width, int height);
+void LCD_GPIO_init();
 
 #endif /* LCD_H_ */

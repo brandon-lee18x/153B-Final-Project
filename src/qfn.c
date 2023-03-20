@@ -152,14 +152,14 @@ void QActive_disarm(QActive *me) {
 #ifndef QK_PREEMPTIVE
 
 void QF_run(void) {
-	 xil_printf("\n\rInside QF run before anything");
+	 //printf("\n\rInside QF run before anything");
     static uint8_t const Q_ROM Q_ROM_VAR log2Lkup[] = {
         0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4
     };
     static uint8_t const Q_ROM Q_ROM_VAR invPow2Lkup[] = {
         0xFF, 0xFE, 0xFD, 0xFB, 0xF7, 0xEF, 0xDF, 0xBF, 0x7F
     };
-	 xil_printf("\n\rInside QF run 1");
+	 //printf("\n\rInside QF run 1");
     uint8_t p;
     QActive *a;
                          /* set priorities all registered active objects... */
@@ -168,7 +168,7 @@ void QF_run(void) {
         Q_ASSERT(a != (QActive *)0);    /* QF_active[p] must be initialized */
         a->prio = p;               /* set the priority of the active object */
     }
-	 xil_printf("\n\rInside QF run 2");
+	 //printf("\n\rInside QF run 2");
          /* trigger initial transitions in all registered active objects... */
     for (p = (uint8_t)1; p <= (uint8_t)QF_MAX_ACTIVE; ++p) {
         a = (QActive *)Q_ROM_PTR(QF_active[p].act);
@@ -178,13 +178,13 @@ void QF_run(void) {
         QFsm_init((QFsm *)a);         /* take the initial transition in FSM */
 #endif
     }
-	//xil_printf("\n\rBefore onstartup");
+	////printf("\n\rBefore onstartup");
     QF_onStartup();                              /* invoke startup callback */
-	 //xil_printf("\n\rAfter onstartup");
+	 ////printf("\n\rAfter onstartup");
 
     for (;;) {                      /* the event loop of the vanilla kernel */
         QF_INT_LOCK();
-		  //xil_printf("\r\nin weird loop locking interrupts!!");
+		  ////printf("\r\nin weird loop locking interrupts!!");
         if (QF_readySet_ != (uint8_t)0) {
 #if (QF_MAX_ACTIVE > 4)
             if ((QF_readySet_ & 0xF0) != 0U) {        /* upper nibble used? */
@@ -205,7 +205,7 @@ void QF_run(void) {
 #if (Q_PARAM_SIZE != 0)
             Q_PAR(a) =
                 ((QEvent *)Q_ROM_PTR(QF_active[a->prio].queue))[a->tail].par;
-//            xil_printf("param: %d\r\n", (int)Q_PAR(a));
+//            //printf("param: %d\r\n", (int)Q_PAR(a));
 #endif
             if (a->tail == (uint8_t)0) {                    /* wrap around? */
                 a->tail = Q_ROM_BYTE(QF_active[a->prio].end);
@@ -222,7 +222,7 @@ void QF_run(void) {
         else {
             QF_onIdle();                                      /* see NOTE01 */
         }
-		  //xil_printf("\n\rAt end of event loop");
+		  ////printf("\n\rAt end of event loop");
     }
 	 
 }
