@@ -15,7 +15,7 @@ extern void Error_Handler(void);
 void I2C_GPIO_Init(void) {
 	//USE PB6 & PB7 FOR I2C1_SCL AND I2C1_SDA RESPECTIVELY
 	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOBEN; //enable port B clk
-	GPIOB->OTYPER |= GPIO_OTYPER_OT6 | GPIO_OTYPER_OT7; //open drain. Slides have open drain
+	GPIOB->OTYPER |= GPIO_OTYPER_OT6 | GPIO_OTYPER_OT7; //open drain
 	GPIOB->MODER &= ~(GPIO_MODER_MODE6_0 | GPIO_MODER_MODE7_0); //clear lsb => moder bits [1:0] = 10 (alt function)
 	GPIOB->AFR[0] &= ~(GPIO_AFRL_AFSEL6|GPIO_AFRL_AFSEL7);
 	GPIOB->AFR[0] |= (GPIO_AFRL_AFSEL6_2|GPIO_AFRL_AFSEL7_2); // set alt function to AF4 (0100)
@@ -34,7 +34,7 @@ void I2C_Initialization(void){
 	uint32_t OwnAddr = 0x52;
 	RCC->APB1ENR1 |= RCC_APB1ENR1_I2C1EN; //enable clock for I2C1
 	RCC->CCIPR &= ~(RCC_CCIPR_I2C1SEL); //clear bits associated with setting clock src for I2C1
-	RCC->CCIPR |= RCC_CCIPR_I2C1SEL_0; //set clock src to system clock
+	RCC->CCIPR |= RCC_CCIPR_I2C1SEL_0; //set clock src to system clock = 80 MHz
 	RCC->APB1RSTR1 |= RCC_APB1RSTR1_I2C1RST; //reset I2C1
 	RCC->APB1RSTR1 &= ~(RCC_APB1RSTR1_I2C1RST); //clear bits associated w/ resetting I2C1
 	I2C1->CR1 &= ~(I2C_CR1_PE); //disable I2C
@@ -43,11 +43,11 @@ void I2C_Initialization(void){
 	I2C1->CR2 &= ~I2C_CR2_ADD10; //set master to 7-bit addressing mode; accelerometer slave address is 7 bits
 	I2C1->CR2 |= I2C_CR2_AUTOEND | I2C_CR2_NACK; //enable automatic end mode and NACK generation??
 	//CHANGE TIMINGR VALUES TO FIT ACCELEROMETER
-	I2C1->TIMINGR |= (uint32_t)5 << I2C_TIMINGR_PRESC_POS;
-	I2C1->TIMINGR |= (uint32_t)2 << I2C_TIMINGR_SCLDEL_POS;
-	I2C1->TIMINGR |= (uint32_t)2 << I2C_TIMINGR_SDADEL_POS;
-	I2C1->TIMINGR |= (uint32_t)8 << I2C_TIMINGR_SCLH_POS;
-	I2C1->TIMINGR |= (uint32_t)9 << I2C_TIMINGR_SCLL_POS;
+	I2C1->TIMINGR |= (uint32_t)9 << I2C_TIMINGR_PRESC_POS;
+	I2C1->TIMINGR |= (uint32_t)0 << I2C_TIMINGR_SCLDEL_POS;
+	I2C1->TIMINGR |= (uint32_t)0 << I2C_TIMINGR_SDADEL_POS;
+	I2C1->TIMINGR |= (uint32_t)0 << I2C_TIMINGR_SCLH_POS;
+	I2C1->TIMINGR |= (uint32_t)0 << I2C_TIMINGR_SCLL_POS;
 	I2C1->OAR1 &= ~(I2C_OAR1_OA1EN); // disables Own address 1
 	I2C1->OAR2 &= ~(I2C_OAR2_OA2EN); // disables Own address 2
 	I2C1->OAR1 &= ~(I2C_OAR1_OA1MODE); // set own address 1 as 7-bit address
@@ -57,33 +57,32 @@ void I2C_Initialization(void){
 }
 
 //init steps: https://controllerstech.com/how-to-interface-mpu6050-gy-521-with-stm32/
-void accelerometer_init(void) {
+int accelerometer_init(void) {
 	uint8_t SlaveAddress = 0x68;
 	uint8_t Data_Receive;
-	uint8_t Data_Send = 0x75;
-	//sensor is valid if who_am_i reg (addres 0x75) return 0x68
-	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
-	I2C_ReceiveData(I2C2, SlaveAddress, &Data_Receive, 1);
-	if (Data_Receive != 0x68)
-		return
+	uint8_t who_reg_address = 0x75;
 	
+	//sensor is valid if who_am_i reg (addres 0x75) return 0x68
+	I2C_SendData(I2C1, SlaveAddress, &who_reg_address, 1);
+	I2C_ReceiveData(I2C2, SlaveAddress, &Data_Receive, 1);
+	if (Data_Receive != 0x68) {
+		return -1;
+	}
 	//get accelerometer out of sleep mode
-	Data_Send = 0x6B;
-	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
-	Data_Send = 0b00000000; //turn on accelerometer; change clk source to internal clk w/ freq of 8 MHZ; FINALIZE DECISION OF CLK SRC
-	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
-
-	//set SMPLRT_DIV, which effectively changes sample rate (sample rate = f_clk / (1 + SMPLRT_DIV)). Rn sample rate is 1 Khz
-	Data_Send = 0x19;
-	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
-	Data_Send = 0x07; //SMPLRT_DIV value; FINALIZE DECISION OF SMPLRT_DIV VALUE
-	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
+	//uint8_t sleep_mode[2] = {0x6B, 0b00000000};
+	uint8_t sleep_mode_addr = 0x6B;
+	I2C_SendData(I2C1, SlaveAddress, &sleep_mode_addr, 1); //turn on accelerometer; change clk source to internal clk w/ freq of 8 MHZ; FINALIZE DECISION OF CLK SRC
+	uint8_t sleep_mode_data = 0;
+	I2C_SendData(I2C1, SlaveAddress, &sleep_mode_data, 1);
+	
+	//set SMPLRT_DIV, which effectively changes sample rate (sample rate = Gyroscope output rate / (1 + SMPLRT_DIV)). Rn gyroscope output rate is 8khz sample rate is 1 Khz
+	uint8_t smplrt_div[2] = {0x19, 0x07};
+	I2C_SendData(I2C1, SlaveAddress, &smplrt_div, 1); //set SMPLRT_DIV TO 7
 
 	//configure accel config regs
-	Data_Send = 0x1C;
-	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
-	Data_Send = 0x00; //set acceleration range to +/- 2g; can change later
-	I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
+	uint8_t accel_config[2] = {0x1C, 0x00};
+	I2C_SendData(I2C1, SlaveAddress, &accel_config, 2); //set acceleration range to +/- 2g; can change later
+	return 0;
 }
 
 /*
@@ -93,23 +92,18 @@ Start/Restart: SCL remains high while SDA transitions from high to low
 Change: data bit to be transferred when SCL line is low
 Data: SDA bit has to be stable when SCL line is high
 Stop: SDA transitions from low to high while SCL line stays high
-
 timing conditions:
 - setup time: SDA has to be stable when SCL line is low for a certain amount of time
 - hold time: time for SDA to hold data after SCL transitions from high to low
 - from these timing conditions, can change min low clock period and min high clock period
-
-
 other remarks for I2C:
 - I2C address of peripheral sent out in first byte after start state
 - ack bit sent every 8 bits (0 = ack, 1 = nack). Sent in the other direction (e.g if master sending data to peripheral, peripheral sends ACK/NACK bit)
 - part name: GY-521 MPU-6050
-
 to-do's from documentation:
 - find slave address of accelerometer
 - find delay times for accelerometer (setup time, hold time)
 - get command byte to ask for acceleration value from accelerometer
-
 slave address: 0x68 if AD0 = 0, 0x69 if AD0 = 1 (I think it's 0x68 based on video tutorial); 7 bits long 
 pins to use: Vcc, gnd, SCL, SDA, AD0 (connect to gnd)
 address of register to put accelerometer out of sleep mode: 0x6B
