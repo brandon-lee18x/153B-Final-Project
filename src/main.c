@@ -1,9 +1,35 @@
 #include "stm32l476xx.h"
 #include "accelerometer.h"
 #include "SysClock.h"
+#include "gui.h"
 #include "UART.h"
 #include <stdio.h>
 #include <string.h>
+
+static QEvent lcd_queue[30];
+
+QActiveCB const Q_ROM Q_ROM_VAR QF_active[] = {
+	{ (QActive *)0,            (QEvent *)0,          0                    },
+	{ (QActive *)&lcd,    lcd_queue,         Q_DIM(lcd_queue)  }
+};
+
+void Q_onAssert(char const Q_ROM * const Q_ROM_VAR file, int line) {
+    (void)file; /* avoid compiler warning */
+    (void)line; /* avoid compiler warning */
+    QF_INT_LOCK();
+    for (;;) {
+    }
+}
+
+void QF_onIdle(void){
+	
+	
+}
+
+void QF_onStartup(void){
+	drawBackground(0, 0, 240, 320);
+}
+
 
 void accelerometer_fsm() {
     int state = 0;
@@ -44,6 +70,10 @@ int main(void){
 	Init_USARTx(2);
 	I2C_GPIO_Init();
 	I2C_Initialization();
+	SPI1_GPIO_Init();
+	SPI1_Init();
+	LCD_GPIO_init();
+	initLCD();
 	accelerometer_init();
 	int i;
 	uint8_t SlaveAddress;
