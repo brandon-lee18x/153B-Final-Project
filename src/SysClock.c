@@ -1,6 +1,5 @@
-#include "SysClock.h"
 
-//SYSTEM CLOCK SPEED: 80 MHZ
+#include "SysClock.h"
 
 // ******************************************************************************************
 // Switch the PLL source from MSI to HSI, and select the PLL as SYSCLK source.
@@ -33,9 +32,9 @@ void System_Clock_Init(void){
 	RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_HSI; // 00 = No clock, 01 = MSI, 10 = HSI, 11 = HSE
 	
 	// Make PLL as 80 MHz
-	// f(VCO clock) = f(PLL clock input) * (PLLN / PLLM) = 16MHz * 1/2 = 8 MHz
-	// f(PLL_R) = f(VCO clock) / PLLR = 8MHz/2 = 2MHz
-	RCC->PLLCFGR = (RCC->PLLCFGR & ~RCC_PLLCFGR_PLLN) | 1U << 8;
+	// f(VCO clock) = f(PLL clock input) * (PLLN / PLLM) = 16MHz * 20/2 = 160 MHz
+	// f(PLL_R) = f(VCO clock) / PLLR = 160MHz/2 = 80MHz
+	RCC->PLLCFGR = (RCC->PLLCFGR & ~RCC_PLLCFGR_PLLN) | 20U << 8;
 	RCC->PLLCFGR = (RCC->PLLCFGR & ~RCC_PLLCFGR_PLLM) | 1U << 4; // 000: PLLM = 1, 001: PLLM = 2, 010: PLLM = 3, 011: PLLM = 4, 100: PLLM = 5, 101: PLLM = 6, 110: PLLM = 7, 111: PLLM = 8
 
 	RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLR;  // 00: PLLR = 2, 01: PLLR = 4, 10: PLLR = 6, 11: PLLR = 8	

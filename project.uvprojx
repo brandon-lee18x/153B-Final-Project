@@ -402,12 +402,22 @@
             <File>
               <FileName>accelerometer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\accelerometer.c</FilePath>
+              <FilePath>.\src\accelerometer.c</FilePath>
             </File>
             <File>
               <FileName>accelerometer.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\accelerometer.h</FilePath>
+              <FilePath>.\src\accelerometer.h</FilePath>
+            </File>
+            <File>
+              <FileName>SysClock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\SysClock.c</FilePath>
+            </File>
+            <File>
+              <FileName>SysClock.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\SysClock.h</FilePath>
             </File>
           </Files>
         </Group>

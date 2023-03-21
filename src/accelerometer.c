@@ -43,45 +43,51 @@ void I2C_Initialization(void){
 	I2C1->CR2 &= ~I2C_CR2_ADD10; //set master to 7-bit addressing mode; accelerometer slave address is 7 bits
 	I2C1->CR2 |= I2C_CR2_AUTOEND | I2C_CR2_NACK; //enable automatic end mode and NACK generation??
 	//CHANGE TIMINGR VALUES TO FIT ACCELEROMETER
-	I2C1->TIMINGR |= (uint32_t)9 << I2C_TIMINGR_PRESC_POS;
+	I2C1->TIMINGR |= (uint32_t)7 << I2C_TIMINGR_PRESC_POS;
 	I2C1->TIMINGR |= (uint32_t)0 << I2C_TIMINGR_SCLDEL_POS;
 	I2C1->TIMINGR |= (uint32_t)0 << I2C_TIMINGR_SDADEL_POS;
-	I2C1->TIMINGR |= (uint32_t)0 << I2C_TIMINGR_SCLH_POS;
-	I2C1->TIMINGR |= (uint32_t)0 << I2C_TIMINGR_SCLL_POS;
+	I2C1->TIMINGR |= (uint32_t)5 << I2C_TIMINGR_SCLH_POS;
+	I2C1->TIMINGR |= (uint32_t)12 << I2C_TIMINGR_SCLL_POS;
 	I2C1->OAR1 &= ~(I2C_OAR1_OA1EN); // disables Own address 1
 	I2C1->OAR2 &= ~(I2C_OAR2_OA2EN); // disables Own address 2
 	I2C1->OAR1 &= ~(I2C_OAR1_OA1MODE); // set own address 1 as 7-bit address
 	I2C1->OAR1 |= OwnAddr; //set own address in OAR1
 	I2C1->OAR1 |= I2C_OAR1_OA1EN; // re-enable Own address 1
+	//SYSCFG->CFGR1 |= (SYSCFG_CFGR1_I2C_PB6_FM | SYSCFG_CFGR1_I2C_PB6_FM);
 	I2C1->CR1 |= I2C_CR1_PE; //re-enable I2C
 }
 
 //init steps: https://controllerstech.com/how-to-interface-mpu6050-gy-521-with-stm32/
 int accelerometer_init(void) {
-	uint8_t SlaveAddress = 0x68;
+	uint8_t SlaveAddress = 0b11010000;
+	/*
 	uint8_t Data_Receive;
 	uint8_t who_reg_address = 0x75;
-	
 	//sensor is valid if who_am_i reg (addres 0x75) return 0x68
 	I2C_SendData(I2C1, SlaveAddress, &who_reg_address, 1);
 	I2C_ReceiveData(I2C2, SlaveAddress, &Data_Receive, 1);
 	if (Data_Receive != 0x68) {
 		return -1;
-	}
+	}*/
+	
 	//get accelerometer out of sleep mode
 	//uint8_t sleep_mode[2] = {0x6B, 0b00000000};
-	uint8_t sleep_mode_addr = 0x6B;
-	I2C_SendData(I2C1, SlaveAddress, &sleep_mode_addr, 1); //turn on accelerometer; change clk source to internal clk w/ freq of 8 MHZ; FINALIZE DECISION OF CLK SRC
-	uint8_t sleep_mode_data = 0;
-	I2C_SendData(I2C1, SlaveAddress, &sleep_mode_data, 1);
+	uint8_t pdata[2] = {0x6B, 0};
+	//uint8_t sleep_mode_addr = 0x6B;
+	I2C_SendData(I2C1, SlaveAddress, pdata, 2); //turn on accelerometer; change clk source to internal clk w/ freq of 8 MHZ; FINALIZE DECISION OF CLK SRC
+	//uint8_t sleep_mode_data = 0;
+	//I2C_SendData(I2C1, SlaveAddress, &sleep_mode_data, 1);
 	
 	//set SMPLRT_DIV, which effectively changes sample rate (sample rate = Gyroscope output rate / (1 + SMPLRT_DIV)). Rn gyroscope output rate is 8khz sample rate is 1 Khz
-	uint8_t smplrt_div[2] = {0x19, 0x07};
-	I2C_SendData(I2C1, SlaveAddress, &smplrt_div, 1); //set SMPLRT_DIV TO 7
+	pdata[0] = 0x19;
+	pdata[1] = 0x07;
+	I2C_SendData(I2C1, SlaveAddress, pdata, 1); //set SMPLRT_DIV TO 7
 
 	//configure accel config regs
-	uint8_t accel_config[2] = {0x1C, 0x00};
-	I2C_SendData(I2C1, SlaveAddress, &accel_config, 2); //set acceleration range to +/- 2g; can change later
+	pdata[0] = 0x1C;
+	pdata[1] = 0x00;
+	//uint8_t accel_config[2] = {0x1C, 0x00};
+	I2C_SendData(I2C1, SlaveAddress, pdata, 2); //set acceleration range to +/- 2g; can change later
 	return 0;
 }
 
@@ -185,14 +191,14 @@ int8_t I2C_SendData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, u
 	for (i = 0; i < Size; i++) {
 		// TXE is set by hardware when the I2C_TXDR register is empty. It is cleared when the next
 		// data to be sent is written in the I2C_TXDR register.
-		// while( (I2Cx->ISR & I2C_ISR_TXE) == 0 ); 
+		while( (I2Cx->ISR & I2C_ISR_TXE) == 0 ); //STUCK HERE ON 2ND ITERATION OF SENDDATA()
 
 		// TXIS bit is set by hardware when the I2C_TXDR register is empty and the data to be
 		// transmitted must be written in the I2C_TXDR register. It is cleared when the next data to be
 		// sent is written in the I2C_TXDR register.
 		// The TXIS flag is not set when a NACK is received.
-		while((I2Cx->ISR & I2C_ISR_TXIS) == 0 );
-		I2Cx->TXDR = pData[i] & I2C_TXDR_TXDATA;  // TXE is cleared by writing to the TXDR register.
+		//while((I2Cx->ISR & I2C_ISR_TXIS) == 0 );
+		I2Cx->TXDR = pData[i] & I2C_TXDR_TXDATA;  // TXE is cleared by writing to the TXDR register. Data not being sent
 	}
 	
 	// Wait until TC flag is set 
