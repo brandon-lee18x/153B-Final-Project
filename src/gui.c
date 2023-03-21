@@ -1,10 +1,11 @@
-#define AO_LAB2A
+#define LCD_GUI
 
 #include "gui.h"
 
 typedef struct LCD_TypeDef {               //LCD State machine
 	QActive super;
-	int a;
+	short reps;
+	short a;
 } Lcd;
 
 /* Setup state machines */

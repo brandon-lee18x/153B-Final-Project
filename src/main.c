@@ -24,7 +24,7 @@ void QF_onIdle(void){
 }
 
 void QF_onStartup(void){
-
+	drawBackground(0, 0, 240, 320);
 }
 
 void accelerometer_fsm() {
