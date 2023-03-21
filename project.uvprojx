@@ -410,6 +410,66 @@
               <FilePath>.\src\accelerometer.h</FilePath>
             </File>
             <File>
+              <FileName>fonts.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\fonts.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\lcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\lcd.h</FilePath>
+            </File>
+            <File>
+              <FileName>qassert.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\qassert.h</FilePath>
+            </File>
+            <File>
+              <FileName>qepn.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\qepn.c</FilePath>
+            </File>
+            <File>
+              <FileName>qepn.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\qepn.h</FilePath>
+            </File>
+            <File>
+              <FileName>qfn.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\qfn.c</FilePath>
+            </File>
+            <File>
+              <FileName>qfn.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\qfn.h</FilePath>
+            </File>
+            <File>
+              <FileName>qfn_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\qfn_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>qpn_port.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\qpn_port.h</FilePath>
+            </File>
+            <File>
+              <FileName>SPI.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\SPI.c</FilePath>
+            </File>
+            <File>
+              <FileName>SPI.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\SPI.h</FilePath>
+            </File>
+            <File>
               <FileName>SysClock.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\SysClock.c</FilePath>
@@ -418,6 +478,16 @@
               <FileName>SysClock.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\src\SysClock.h</FilePath>
+            </File>
+            <File>
+              <FileName>gui.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\gui.c</FilePath>
+            </File>
+            <File>
+              <FileName>gui.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\src\gui.h</FilePath>
             </File>
           </Files>
         </Group>
