@@ -5,6 +5,7 @@
 #ifndef qpn_port_h
 #define qpn_port_h
 
+#include "stm32l476xx.h"
 
 #define Q_PARAM_SIZE            4
 #define QF_TIMEEVT_CTR_SIZE     1
@@ -27,7 +28,6 @@
 #include <stdint.h>       /* IAR provides C99-standard exact-width integers */
 #include "qepn.h"         /* QEP-nano platform-independent public interface */
 #include "qfn.h"           /* QF-nano platform-independent public interface */
-#include "stm32l476xx.h"
 
 
 #endif                                                        /* qpn_port_h */

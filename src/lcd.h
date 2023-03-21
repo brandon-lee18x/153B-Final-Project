@@ -1,9 +1,7 @@
 #ifndef LCD_H_
 #define LCD_H_
 
-#include "stm32l476xx.h"
 #include "SPI.h"
-
 
 #define cbi(reg, bitmask)       Xil_Out32(reg, Xil_In32(reg) & ~(u32)bitmask)
 #define sbi(reg, bitmask)       Xil_Out32(reg, Xil_In32(reg) |= (u32)bitmask)

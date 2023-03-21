@@ -38,6 +38,8 @@ Q_DEFINE_THIS_MODULE(qfn)
 /* Global-scope objects ----------------------------------------------------*/
 uint8_t volatile QF_readySet_;                      /* ready-set of QF-nano */
 
+volatile short isIdle = 0;
+
 /* local objects -----------------------------------------------------------*/
 static uint8_t const Q_ROM Q_ROM_VAR l_pow2Lkup[] = {
     0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80
@@ -79,7 +81,7 @@ void QActive_postISR(QActive *me, QSignal sig)
 #endif
 {
             /* the queue must be able to accept the event (cannot overflow) */
-    Q_ASSERT(me->nUsed < Q_ROM_BYTE(QF_active[me->prio].end));
+    Q_ASSERT((me->nUsed < Q_ROM_BYTE(QF_active[me->prio].end)) && isIdle);
 
 #ifdef QF_ISR_NEST
 #ifdef QF_ISR_KEY_TYPE
@@ -186,6 +188,7 @@ void QF_run(void) {
         QF_INT_LOCK();
 		  ////printf("\r\nin weird loop locking interrupts!!");
         if (QF_readySet_ != (uint8_t)0) {
+					isIdle = 0;
 #if (QF_MAX_ACTIVE > 4)
             if ((QF_readySet_ & 0xF0) != 0U) {        /* upper nibble used? */
                 p = (uint8_t)(Q_ROM_BYTE(log2Lkup[QF_readySet_ >> 4]) + 4);
@@ -220,7 +223,9 @@ void QF_run(void) {
 #endif
         }
         else {
-            QF_onIdle();                                      /* see NOTE01 */
+					isIdle = 1;
+          QF_onIdle();                                      /* see NOTE01 */
+					
         }
 		  ////printf("\n\rAt end of event loop");
     }

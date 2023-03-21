@@ -29,6 +29,8 @@
 #define qfn_h
 
 #include "qpn_port.h"
+
+extern volatile short isIdle;
 /**
 * \file
 * \ingroup qepn qfn qkn
