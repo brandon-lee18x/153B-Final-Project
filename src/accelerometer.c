@@ -236,3 +236,26 @@ int8_t I2C_ReceiveData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData
 	
 	return 0;
 }
+/*
+struct Circular_Buffer {
+    int16_t buffer[SIZE_OF_BUFFER];
+    int curr_index = 0;
+};
+*/
+void insert_accel(int16_t accel, struct Circular_Buffer b) {
+	if (b.curr_index < 10) {
+		b.buffer[b.curr_index] = accel;
+		b.curr_index++;
+	} else { //curr_index >= 10
+		b.curr_index = 0;
+		b.buffer[b.curr_index] = accel;
+	}
+}
+
+float get_rolling_avg(struct Circular_Buffer b, int buffer_size) {
+	float average = 0;
+	for (int i = 0; i < buffer_size; i++) {
+		average += b.buffer[i];
+	}
+	return average / buffer_size;
+}
