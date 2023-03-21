@@ -21,25 +21,131 @@ Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.1.0.0
 Dialog DLL:      TCM.DLL V1.56.4.0
  
 <h2>Project:</h2>
-C:\Users\brandon_lee\Documents\153B Final Project\project.uvprojx
-Project File Date:  03/11/2023
+C:\Users\brandon_lee\Documents\153B-Final-Project\project.uvprojx
+Project File Date:  03/20/2023
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.19', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'Target 1'
-accelerometer.c(1): error: 'I2C.h' file not found
-#include "I2C.h"
-         ^~~~~~~
-1 error generated.
-compiling accelerometer.c...
+assembling startup_stm32l476xx.s...
+src/SysClock.c(2): warning: In file included from...
+src/SysClock.h(4): warning: In file included from...
+src/stm32l476xx.h(12): warning: invalid UTF-8 in comment [-Winvalid-utf8]
+  *           - Macros to access peripheral<92>s registers hardware
+                                           ^
+src/SysClock.c(104): warning: no newline at end of file [-Wnewline-eof]
+}
+ ^
+2 warnings generated.
+compiling SysClock.c...
 src/main.c(1): warning: In file included from...
 src/stm32l476xx.h(12): warning: invalid UTF-8 in comment [-Winvalid-utf8]
   *           - Macros to access peripheral<92>s registers hardware
                                            ^
-1 warning generated.
+src/main.c(2): warning: In file included from...
+src/accelerometer.h(21): warning: no newline at end of file [-Wnewline-eof]
+#endif
+      ^
+src/main.c(6): warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+void accelerometer_fsm() {
+                      ^
+                       void
+src/main.c(6): warning: no previous prototype for function 'accelerometer_fsm' [-Wmissing-prototypes]
+void accelerometer_fsm() {
+     ^
+src/main.c(6): note: declare 'static' if the function is not intended to be used outside of this translation unit
+void accelerometer_fsm() {
+^
+static 
+src/main.c(47): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+                SlaveAddress = 0b1101000 << 1; // address of accelerometer if AD0 = 0
+                               ^
+src/main.c(53): warning: passing 'int8_t *' (aka 'signed char *') to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+          I2C_ReceiveData(I2C1, SlaveAddress, &accel_x_h, 1);
+                                              ^~~~~~~~~~
+src/accelerometer.h(15): note: passing argument to parameter 'pData' here
+int8_t I2C_ReceiveData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, uint8_t Size);
+                                                                           ^
+src/main.c(56): warning: passing 'int8_t *' (aka 'signed char *') to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    I2C_ReceiveData(I2C1, SlaveAddress, &accel_x_l, 1);
+                                        ^~~~~~~~~~
+src/accelerometer.h(15): note: passing argument to parameter 'pData' here
+int8_t I2C_ReceiveData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, uint8_t Size);
+                                                                           ^
+src/main.c(57): warning: implicit conversion loses integer precision: 'int' to 'int16_t' (aka 'short') [-Wimplicit-int-conversion]
+    accel_x_raw = (accel_x_h << 8) | accel_x_l;
+                ~ ~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+src/main.c(63): warning: passing 'int8_t *' (aka 'signed char *') to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    I2C_ReceiveData(I2C1, SlaveAddress, &accel_y_h, 1);
+                                        ^~~~~~~~~~
+src/accelerometer.h(15): note: passing argument to parameter 'pData' here
+int8_t I2C_ReceiveData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, uint8_t Size);
+                                                                           ^
+src/main.c(66): warning: passing 'int8_t *' (aka 'signed char *') to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    I2C_ReceiveData(I2C1, SlaveAddress, &accel_y_l, 1);
+                                        ^~~~~~~~~~
+src/accelerometer.h(15): note: passing argument to parameter 'pData' here
+int8_t I2C_ReceiveData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, uint8_t Size);
+                                                                           ^
+src/main.c(67): warning: implicit conversion loses integer precision: 'int' to 'int16_t' (aka 'short') [-Wimplicit-int-conversion]
+    accel_y_raw = (accel_y_h << 8) | accel_y_l;
+                ~ ~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+src/main.c(73): warning: passing 'int8_t *' (aka 'signed char *') to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    I2C_ReceiveData(I2C1, SlaveAddress, &accel_z_h, 1);
+                                        ^~~~~~~~~~
+src/accelerometer.h(15): note: passing argument to parameter 'pData' here
+int8_t I2C_ReceiveData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, uint8_t Size);
+                                                                           ^
+src/main.c(76): warning: passing 'int8_t *' (aka 'signed char *') to parameter of type 'uint8_t *' (aka 'unsigned char *') converts between pointers to integer types with different sign [-Wpointer-sign]
+    I2C_ReceiveData(I2C1, SlaveAddress, &accel_z_l, 1);
+                                        ^~~~~~~~~~
+src/accelerometer.h(15): note: passing argument to parameter 'pData' here
+int8_t I2C_ReceiveData(I2C_TypeDef * I2Cx, uint8_t DeviceAddress, uint8_t *pData, uint8_t Size);
+                                                                           ^
+src/main.c(77): warning: implicit conversion loses integer precision: 'int' to 'int16_t' (aka 'short') [-Wimplicit-int-conversion]
+    accel_z_raw = (accel_z_h << 8) | accel_z_l;
+                ~ ~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+src/main.c(48): warning: mixing declarations and code is incompatible with standards before C99 [-Wdeclaration-after-statement]
+                float d = 16384;
+                      ^
+src/main.c(83): warning: no newline at end of file [-Wnewline-eof]
+}
+ ^
+src/main.c(28): warning: mixing declarations and code is incompatible with standards before C99 [-Wdeclaration-after-statement]
+        int i;
+            ^
+src/main.c(30): warning: variable 'accel_x' set but not used [-Wunused-but-set-variable]
+  float accel_x;
+        ^
+src/main.c(35): warning: variable 'accel_y' set but not used [-Wunused-but-set-variable]
+  float accel_y;
+        ^
+src/main.c(40): warning: variable 'accel_z' set but not used [-Wunused-but-set-variable]
+  float accel_z;
+        ^
+20 warnings generated.
 compiling main.c...
-assembling startup_stm32l476xx.s...
-".\Objects\project.axf" - 1 Error(s), 1 Warning(s).
+src/accelerometer.c(1): warning: In file included from...
+src/accelerometer.h(6): warning: In file included from...
+src/stm32l476xx.h(12): warning: invalid UTF-8 in comment [-Winvalid-utf8]
+  *           - Macros to access peripheral<92>s registers hardware
+                                           ^
+src/accelerometer.c(1): warning: In file included from...
+src/accelerometer.h(21): warning: no newline at end of file [-Wnewline-eof]
+#endif
+      ^
+src/accelerometer.c(62): warning: binary integer literals are a GNU extension [-Wgnu-binary-literal]
+        uint8_t SlaveAddress = 0b11010000;
+                               ^
+src/accelerometer.c(238): warning: no newline at end of file [-Wnewline-eof]
+}
+ ^
+4 warnings generated.
+compiling accelerometer.c...
+linking...
+Program Size: Code=2316 RO-data=408 RW-data=0 ZI-data=1632  
+FromELF: creating hex file...
+".\Objects\project.axf" - 0 Error(s), 26 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -62,8 +168,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.6.0
-Target not created.
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>
