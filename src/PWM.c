@@ -18,14 +18,15 @@ void PWM_Init() {
 	GPIOA->AFR[0] |= GPIO_AFRL_AFSEL0_0; // AF 0001 (TIM2_CH1)
 	
 	// Configure PWM Output for TIM2 CH 1
+	//FREQUENCY OF PWM: 8 KHZ
 	TIM2->CR1 &= ~TIM_CR1_DIR; //set to upcounting
-	TIM2->PSC = 0x0003; //prescaler value
-	TIM2->ARR = 1000;
+	TIM2->PSC = 9999; //prescaler value
+	TIM2->ARR = 7999;
 	TIM2->CCMR1 &= ~TIM_CCMR1_OC1M; //clear compare mode bits
 	TIM2->CCMR1 |= (TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2); //0110
 	TIM2->CCMR1 |= TIM_CCMR1_OC1PE; //enable output preload
 	TIM2->CCER &= ~TIM_CCER_CC1P; //set output polarity to active high
 	TIM2->CCER |= TIM_CCER_CC1E; //enable channel 1 output
-	TIM2->CCR1 = ccr;
+	TIM2->CCR1 = 4000;
 	TIM2->CR1 |= TIM_CR1_CEN; //enable counter
 }

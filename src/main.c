@@ -1,13 +1,13 @@
 #include "stm32l476xx.h"
 #include "accelerometer.h"
 #include "SysClock.h"
-#include "gui.h"
 #include "UART.h"
+#include "PWM.h"
+#include "DAC.h"
 #include <stdio.h>
 #include <string.h>
-#include "MY_ILI9341.h"
 
-
+//determine thresholds
 void accelerometer_fsm() {
     int state = 0;
     //0 = top, 1 = descent, 2 = pause, 3 = ascent
@@ -43,22 +43,12 @@ void Init_USARTx(int x) {
 
 int main(void){
 	System_Clock_Init(); // System Clock = 80 MHz
-	
+	//PWM_Init();
 	// Initialize I2C
+	DAC_Init();
 	Init_USARTx(2);
 	I2C_GPIO_Init();
 	I2C_Initialization();
-	
-	SPI1_GPIO_Init();
-	SPI_Init();
-	
-	//LCD_GPIO_init();
-	ILI9341_Init(SPI1, GPIOB, 8, GPIOB, 9, GPIOA, 6);
-	ILI9341_Fill(COLOR_BLACK);
-	//drawBackground(0, 0, 240, 320);
-	//LCD_ctor();
-	//QF_run();
-	
 	accelerometer_init();
 	int i;
 	uint8_t SlaveAddress;
@@ -115,6 +105,7 @@ int main(void){
 		printf("\taccel_y: %f", accel_y);
 		printf("\taccel_z: %f", accel_z);
 		printf("\n");
+		DAC_Write_Value(2500);
     for(i = 0; i < 50000; ++i); 
    }
 
