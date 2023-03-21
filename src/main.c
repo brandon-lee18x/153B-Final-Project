@@ -1,7 +1,9 @@
 #include "stm32l476xx.h"
 #include "accelerometer.h"
 #include "SysClock.h"
+#include "UART.h"
 #include <stdio.h>
+#include <string.h>
 
 void accelerometer_fsm() {
     int state = 0;
@@ -19,9 +21,27 @@ void accelerometer_fsm() {
     }
 }
 
+// Initializes USARTx
+// USART2: UART Communication with Termite
+// USART1: Bluetooth Communication with Phone
+void Init_USARTx(int x) {
+	if(x == 1) {
+		UART1_Init();
+		UART1_GPIO_Init();
+		USART_Init(USART1);
+	} else if(x == 2) {
+		UART2_Init();
+		UART2_GPIO_Init();
+		USART_Init(USART2);
+	} else {
+		// Do nothing...
+	}
+}
+
 int main(void){
 	System_Clock_Init(); // System Clock = 80 MHz
 	// Initialize I2C
+	Init_USARTx(2);
 	I2C_GPIO_Init();
 	I2C_Initialization();
 	accelerometer_init();
@@ -76,7 +96,10 @@ int main(void){
     I2C_ReceiveData(I2C1, SlaveAddress, &accel_z_l, 1);
     accel_z_raw = (accel_z_h << 8) | accel_z_l;
     accel_z = accel_z_raw / d; //gives accel in g's
-    // have watch window for accel_x, accel_y, and accel_z
+    printf("accel_x: %f", accel_x);
+		printf("\taccel_y: %f", accel_y);
+		printf("\taccel_z: %f", accel_z);
+		printf("\n");
     for(i = 0; i < 50000; ++i); 
    }
 
