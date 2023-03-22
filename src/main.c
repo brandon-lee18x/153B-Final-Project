@@ -44,6 +44,7 @@ void fsm() {
 					if (inactive) {
 						reps = 0;
 						ILI9341_drawChar(REP_DISPLAY_X, REP_DISPLAY_Y, (char)(reps+48), COLOR_WHITE, COLOR_OLIVE, REP_DISPLAY_SIZE);
+						inactive = 0;
 					}
 					
 					if (fabs(rolling_avg) > ABS_MOVE_THRESHOLD) {
