@@ -5,30 +5,7 @@
 #include "UART.h"
 #include <stdio.h>
 #include <string.h>
-
-static QEvent lcd_queue[30];
-
-QActiveCB const Q_ROM Q_ROM_VAR QF_active[] = {
-	{ (QActive *)0,            (QEvent *)0,          0                    },
-	{ (QActive *)&lcd,    lcd_queue,         Q_DIM(lcd_queue)  }
-};
-
-void Q_onAssert(char const Q_ROM * const Q_ROM_VAR file, int line) {
-    (void)file; /* avoid compiler warning */
-    (void)line; /* avoid compiler warning */
-    QF_INT_LOCK();
-    for (;;) {
-    }
-}
-
-void QF_onIdle(void){
-	
-	
-}
-
-void QF_onStartup(void){
-	drawBackground(0, 0, 240, 320);
-}
+#include "MY_ILI9341.h"
 
 
 void accelerometer_fsm() {
@@ -66,14 +43,22 @@ void Init_USARTx(int x) {
 
 int main(void){
 	System_Clock_Init(); // System Clock = 80 MHz
+	
 	// Initialize I2C
 	Init_USARTx(2);
 	I2C_GPIO_Init();
 	I2C_Initialization();
+	
 	SPI1_GPIO_Init();
-	SPI1_Init();
-	LCD_GPIO_init();
-	initLCD();
+	SPI_Init();
+	
+	//LCD_GPIO_init();
+	ILI9341_Init(SPI1, GPIOB, 8, GPIOB, 9, GPIOA, 6);
+	ILI9341_Fill(COLOR_BLACK);
+	//drawBackground(0, 0, 240, 320);
+	//LCD_ctor();
+	//QF_run();
+	
 	accelerometer_init();
 	int i;
 	uint8_t SlaveAddress;
