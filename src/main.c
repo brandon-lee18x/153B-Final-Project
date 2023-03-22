@@ -28,10 +28,17 @@ void fsm(float rolling_avg) {
             }
             break;
         case (pause):
-
-            //START TIMER while under certain threshold
+            bool isDone = false;
+            while (!isDone) {
+                for (int i = 0; i < 8000000; i++) {
+                }
+            }
+            for (int i = 0; i < 8000000; i++);
+            DAC_Write_Value(2500);
+            //START TIMER while accelerometer at a certain pause threshold
             break;
         case (ascent):
+            DAC_Write_Value(0);
             if (rolling_avg > TOP_THRESHOLD_L && rolling_avg < TOP_THRESHOLD_H) {
                 state = top;
             }
