@@ -23,6 +23,7 @@
 
 volatile float rolling_avg = 0;
 volatile short inactive = 0;
+extern volatile short int inactive_ticks;
 
 typedef enum Typedef_States {
 	top, 
@@ -87,6 +88,7 @@ void fsm() {
 							numreps = 0;
 							reps++;
 							ILI9341_drawChar(REP_DISPLAY_X, REP_DISPLAY_Y, (char)(reps+48), COLOR_WHITE, COLOR_OLIVE, REP_DISPLAY_SIZE);
+							inactive_ticks = INACTIVE_PERIOD;
 						}
 					}
 					break;
