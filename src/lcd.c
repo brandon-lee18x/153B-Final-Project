@@ -14,41 +14,50 @@ void LCD_GPIO_init() {
 	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
 	
 	//Initialize DC (PA10) pin
-	GPIOA->MODER &= ~(GPIO_MODER_MODE10_1|GPIO_MODER_MODE2_1|GPIO_MODER_MODE3); //set DC to output, RESET to output, CS to output
+	GPIOA->MODER &= ~(GPIO_MODER_MODE10|GPIO_MODER_MODE2|GPIO_MODER_MODE3); //set DC to output, RESET to output, CS to output
+	GPIOA->MODER |= (GPIO_MODER_MODE10_0|GPIO_MODER_MODE2_0|GPIO_MODER_MODE3_0);
 	GPIOA->OTYPER &= ~(GPIO_OTYPER_OT10|GPIO_OTYPER_OT2|GPIO_OTYPER_OT3);// set DC, RESET, CS to push-pull
 	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPD10|GPIO_PUPDR_PUPD2|GPIO_PUPDR_PUPD3); // set DC and RESET to no pull-up, pull-down
-	GPIOA->PUPDR |= GPIO_PUPDR_PUPD3_0; // set CS to pull-up
+	//GPIOA->PUPDR |= GPIO_PUPDR_PUPD3_0; // set CS to pull-up
+	GPIOA->ODR |= GPIO_ODR_OD3;
+	GPIOA->ODR |= GPIO_ODR_OD2;
 	GPIOA->OSPEEDR &= ~(GPIO_OSPEEDER_OSPEEDR10|GPIO_OSPEEDER_OSPEEDR2|GPIO_OSPEEDER_OSPEEDR3);
 	GPIOA->OSPEEDR |= (GPIO_OSPEEDER_OSPEEDR10|GPIO_OSPEEDER_OSPEEDR2|GPIO_OSPEEDER_OSPEEDR3); // set DC, RESET, CS to high output speed
 }
-
+/*
 // Write command to LCD controller
 void LCD_Write_COM(uint8_t byte)
 {
+		GPIOA->ODR &= ~GPIO_ODR_OD3;
 		// set DC to 0
     GPIOA->ODR &= ~GPIO_ODR_OD10;
     SPI_Send_Byte(SPI1, byte);
+		GPIOA->ODR |= GPIO_ODR_OD3;
 }
 
 
 // Write 16-bit data to LCD controller
 void LCD_Write_DATA16(uint8_t byteH, uint8_t byteL)
 {
+		GPIOA->ODR &= ~GPIO_ODR_OD3;
 		// set DC to 1
     GPIOA->ODR |= GPIO_ODR_OD10;
 		SPI_Send_Byte(SPI1, byteH);
 		SPI_Send_Byte(SPI1, byteL);
     //Xil_Out32(SPI_DTR, byteH);
     //Xil_Out32(SPI_DTR, byteL);
+		GPIOA->ODR |= GPIO_ODR_OD3;
 }
 
 
 // Write 8-bit data to LCD controller
 void LCD_Write_DATA(uint8_t byteL)
 {
+		GPIOA->ODR &= ~GPIO_ODR_OD3;
 		// set DC to 1
     GPIOA->ODR |= GPIO_ODR_OD10;
     SPI_Send_Byte(SPI1, byteL);
+		GPIOA->ODR |= GPIO_ODR_OD3;
 }
 
 
@@ -362,4 +371,4 @@ void lcdPrint(char *st, int x, int y)
     while(*st != '\0')
         printChar(*st++, x + cfont.x_size * i++, y);
 }
-
+*/
