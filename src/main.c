@@ -6,43 +6,91 @@
 #include "DAC.h"
 #include <stdio.h>
 #include <string.h>
+#include "gui.h"
+#include "SPI.h"
+#include <math.h>
+#include "MY_ILI9341.h"
+#include "SysTimer.h"
 
-#define DESCENT_THRESHOLD 1.2
-#define PAUSE_THRESHOLD_H 0.1
-#define PAUSE_THRESHOLD_L -0.1
-#define TOP_THRESHOLD_H 1.1
-#define TOP_THRESHOLD_L 0.9
+
+#define STATE_REINFORCMENT 3
+#define REP_DISPLAY_SIZE 10
+#define REP_DISPLAY_X (ILI9341_WIDTH/2 - 6*REP_DISPLAY_SIZE/2)
+#define REP_DISPLAY_Y (ILI9341_HEIGHT/2 - 8*REP_DISPLAY_SIZE/2)
+
+
+#define DOWNSAMPLE 4
+
+volatile float rolling_avg = 0;
+volatile short inactive = 0;
+
+typedef enum Typedef_States {
+	top, 
+	descent, 
+	pause, 
+	ascent
+} States;
+
+States state = top;
+short numreps = 0;
+short reps = 0;
 
 //determine thresholds
-void fsm(float rolling_avg) {
-    enum state{top, descent, pause, ascent} = top;
-    switch(top) {
-        case (top):
-            if (rolling_avg > DESCENT_THRESHOLD) {
-                state = descent;
-            } 
-            break;
-        case (descent):
-            if (rolling_avg > PAUSE_THRESHOLD_L && rolling_avg < PAUSE_THRESHOLD_H) {
-                state = pause;
-            }
-            break;
-        case (pause):
-            bool isDone = false;
-            while (!isDone) {
-                for (int i = 0; i < 8000000; i++) {
-                }
-            }
-            for (int i = 0; i < 8000000; i++);
-            DAC_Write_Value(2500);
-            //START TIMER while accelerometer at a certain pause threshold
-            break;
-        case (ascent):
-            DAC_Write_Value(0);
-            if (rolling_avg > TOP_THRESHOLD_L && rolling_avg < TOP_THRESHOLD_H) {
-                state = top;
-            }
-            break;
+void fsm() {
+    switch(state) {
+        case (top): {
+					DAC_Write_Value(0);
+					if (inactive) {
+						reps = 0;
+						ILI9341_drawChar(REP_DISPLAY_X, REP_DISPLAY_Y, (char)(reps+48), COLOR_WHITE, COLOR_OLIVE, REP_DISPLAY_SIZE);
+					}
+					
+					if (fabs(rolling_avg) > ABS_MOVE_THRESHOLD) {
+							if (++numreps > STATE_REINFORCMENT) {
+								state = descent;
+								numreps = 0;
+							}
+					} 
+					break;
+				}
+        case (descent): {
+					if (fabs(rolling_avg) < ABS_REST_THRESHOLD) {
+							if (++numreps > STATE_REINFORCMENT) {
+								state = pause;
+								DAC_Write_Value(2000);
+								numreps = 0;
+							}
+					}
+					break;
+				}
+        case (pause): {
+/*            short isDone = 0;
+					while (!isDone) {
+							for (int i = 0; i < 8000000; i++) {
+							}
+					}*/
+					//for (int i = 0; i < 8000000; i++);
+					if (fabs(rolling_avg) > ABS_MOVE_THRESHOLD) {
+						if (++numreps > STATE_REINFORCMENT) {
+							state = ascent;
+							DAC_Write_Value(0);
+							numreps = 0;
+						}
+					}
+					//START TIMER while accelerometer at a certain pause threshold
+					break;
+				}
+        case (ascent): {
+					if (fabs(rolling_avg) < ABS_REST_THRESHOLD) {
+						if (++numreps > STATE_REINFORCMENT) {
+							state = top;
+							numreps = 0;
+							reps++;
+							ILI9341_drawChar(REP_DISPLAY_X, REP_DISPLAY_Y, (char)(reps+48), COLOR_WHITE, COLOR_OLIVE, REP_DISPLAY_SIZE);
+						}
+					}
+					break;
+				}
     }
 }
 
@@ -72,34 +120,45 @@ int main(void){
 	I2C_GPIO_Init();
 	I2C_Initialization();
 	accelerometer_init();
-    int num_insert_accel = 0;
-    struct Circular_Buffer z_arr;
-    float rolling_avg;
-    uint8_t SlaveAddress;
-    float accel_x;
-    int16_t accel_x_raw;
-    int8_t accel_x_h;
-    int8_t accel_x_l;
-        
-    float accel_y;
-    int16_t accel_y_raw;
-    int8_t accel_y_h;
-    int8_t accel_y_l;
-        
-    float accel_z;
-    int16_t accel_z_raw;
-    int8_t accel_z_h;
-    int8_t accel_z_l;
+	
+	SPI1_GPIO_Init();
+	SPI_Init();
+	SysTick_Init();
+	
+	ILI9341_Init(SPI1, GPIOB, 8, GPIOB, 9, GPIOA, 6);
+	ILI9341_Fill(COLOR_OLIVE);
+	ILI9341_drawChar(REP_DISPLAY_X, REP_DISPLAY_Y, (char)(reps+48), COLOR_WHITE, COLOR_OLIVE, REP_DISPLAY_SIZE);
+	
+	int num_insert_accel = 0;
+	Rolling_buffer z_arr;
+	uint8_t SlaveAddress;
+	float accel_x;
+	int16_t accel_x_raw;
+	int8_t accel_x_h;
+	int8_t accel_x_l;
+			
+	float accel_y;
+	int16_t accel_y_raw;
+	int8_t accel_y_h;
+	int8_t accel_y_l;
+			
+	float accel_z;
+	int16_t accel_z_raw;
+	int8_t accel_z_h;
+	int8_t accel_z_l;
 	uint8_t Data_Send;
+	static float sum = 0;
 
-    float rolling_avg;
+	short num_samples = 0;
+	float ravg;
+
 	while(1) {
 		// Slave Address: Note the "<< 1" must be present because bit 0 is treated as a don't care in 7-bit addressing mode
 		SlaveAddress = 0b1101000 << 1; // address of accelerometer if AD0 = 0
 		float d = 16384;
 
         //x_accel
-	    Data_Send = 0x3B;
+/*	    Data_Send = 0x3B;
 	    I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
 	    I2C_ReceiveData(I2C1, SlaveAddress, &accel_x_h, 1);
         Data_Send = 0x3C;
@@ -113,10 +172,10 @@ int main(void){
         I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
         I2C_ReceiveData(I2C1, SlaveAddress, &accel_y_h, 1);
         Data_Send = 0x3E;
-        I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
+       I2C_SendData(I2C1, SlaveAddress, &Data_Send, 1);
         I2C_ReceiveData(I2C1, SlaveAddress, &accel_y_l, 1);
         accel_y_raw = (accel_y_h << 8) | accel_y_l;
-        accel_y = accel_y_raw / d; //gives accel in g's
+        accel_y = accel_y_raw / d; //gives accel in g's*/
 
         //z_accel
         Data_Send = 0x3F;
@@ -127,20 +186,29 @@ int main(void){
         I2C_ReceiveData(I2C1, SlaveAddress, &accel_z_l, 1);
         accel_z_raw = (accel_z_h << 8) | accel_z_l;
         accel_z = accel_z_raw / d; //gives accel in g's
-        insert_accel(accel_z, z_arr);
-        if (num_insert_accel < 10) {
+        insert_accel(accel_z, &z_arr);
+        if (num_insert_accel < SIZE_OF_BUFFER) {
             num_insert_accel++;
         } else { //num_insert_accel >= 10
-            rolling_avg = get_rolling_avg(z_arr, SIZE_OF_BUFFER);
+					if ((++num_samples % DOWNSAMPLE) == (DOWNSAMPLE-1)){
+						ravg = get_rolling_avg(&z_arr) + 0.50;
+						rolling_avg =  250  * (ravg * ravg * ravg * ravg * ravg * ravg * ravg ); // / 0.5;
+						if (ravg < 0) {
+							//rolling_avg *= -1;
+						}
+						num_samples = 0;
+					}
         }
-
+				
         /*printf("accel_x: %f", accel_x);
         printf("\taccel_y: %f", accel_y);
         printf("\taccel_z: %f", accel_z);
         printf("\n");*/
-        printf("avg accel_z: %f", rolling_avg);
-        DAC_Write_Value(2500);
-        for(int i = 0; i < 50000; ++i); 
+				if (fabs(rolling_avg) > ABS_MOVE_THRESHOLD){
+					printf("avg accel_z: %f\r\n", rolling_avg);
+				}
+				fsm();
+        for(int i = 0; i < 50000; ++i);
    }
 
 }

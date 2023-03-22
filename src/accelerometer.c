@@ -242,20 +242,21 @@ struct Circular_Buffer {
     int curr_index = 0;
 };
 */
-void insert_accel(int16_t accel, struct Circular_Buffer b) {
-	if (b.curr_index < 10) {
-		b.buffer[b.curr_index] = accel;
-		b.curr_index++;
+void insert_accel(float accel, Rolling_buffer* b) {
+	if (b->curr_index < SIZE_OF_BUFFER) {
+		b->buffer[b->curr_index] = accel;
+		b->curr_index++;
 	} else { //curr_index >= 10
-		b.curr_index = 0;
-		b.buffer[b.curr_index] = accel;
+		b->curr_index = 0;
+		b->buffer[b->curr_index] = accel;
+		b->curr_index++;
 	}
 }
 
-float get_rolling_avg(struct Circular_Buffer b, int buffer_size) {
+float get_rolling_avg(Rolling_buffer* b) {
 	float average = 0;
-	for (int i = 0; i < buffer_size; i++) {
-		average += b.buffer[i];
+	for (int i = 0; i < SIZE_OF_BUFFER; i++) {
+		average += b->buffer[i];
 	}
-	return average / buffer_size;
+	return (average / SIZE_OF_BUFFER);
 }

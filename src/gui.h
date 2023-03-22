@@ -7,7 +7,7 @@
 #define GUI
 
 #include "qpn_port.h"
-#include "lcd.h"
+#include "MY_ILI9341.h"
 
 enum LCDSignals {
 	INCREMENT = Q_USER_SIG,

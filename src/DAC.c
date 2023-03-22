@@ -7,7 +7,8 @@ static void DAC_Pin_Init(void) {
 	GPIOA->PUPDR &= ~GPIO_PUPDR_PUPD4; //set to no PUPDR
 }
 
-void DAC_Write_Value(uint32_t value) {
+void 
+	DAC_Write_Value(uint32_t value) {
   // [TODO] Write DAC1Ch1 right-aligned 12-bit value
 	DAC1->DHR12R1 &= ~DAC_DHR12R1_DACC1DHR;
 	DAC1->DHR12R1 |= value & DAC_DOR1_DACC1DOR;
